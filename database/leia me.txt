@@ -1,0 +1,5 @@
+Execute apenas clinica_prev_dentista.sql no seu MySQL.
+
+Copie e cole o texto para que se crie o seu banco lá.
+
+Desconsidere os outros arquivos dessa pasta.

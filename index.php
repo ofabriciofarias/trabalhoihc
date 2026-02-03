@@ -67,8 +67,12 @@ try {
             a.id,
             a.data_atendimento,
             a.paciente_nome,
-            u.nome as dentista,
+            a.taxa_cartao,
             a.valor_liquido_clinica,
+            a.custo_protetico,
+            a.comissao_dentista,
+            u.nome as dentista,
+            SUM(ap.valor_procedimento) as valor_bruto_total,
             GROUP_CONCAT(p.nome SEPARATOR ', ') as procedimentos
         FROM atendimentos a
         JOIN usuarios u ON a.id_dentista = u.id
@@ -236,9 +240,13 @@ $mesAtual = $formatter->format(strtotime($data_inicio));
                     data-id="<?= $at['id'] ?>"
                     data-data="<?= date('d/m/Y H:i', strtotime($at['data_atendimento'])) ?>"
                     data-paciente="<?= htmlspecialchars($at['paciente_nome']) ?>"
+                    data-taxa-cartao="R$ <?= number_format($at['taxa_cartao'], 2, ',', '.') ?>"
+                    data-custo-protetico="R$ <?= number_format($at['custo_protetico'], 2, ',', '.') ?>"
+                    data-comissao-dentista="R$ <?= number_format($at['comissao_dentista'], 2, ',', '.') ?>"
                     data-procedimentos="<?= htmlspecialchars($at['procedimentos'] ?? '') ?>"
                     data-dentista="<?= htmlspecialchars($at['dentista']) ?>"
                     data-valor="R$ <?= number_format($at['valor_liquido_clinica'], 2, ',', '.') ?>"
+                    data-bruto="R$ <?= number_format($at['valor_bruto_total'] ?? 0, 2, ',', '.') ?>"
                     style="cursor: pointer;" title="Clique para ver detalhes">
                     <td><?= date('d/m/Y H:i', strtotime($at['data_atendimento'])) ?></td>
                     <td><?= htmlspecialchars($at['paciente_nome']) ?></td>
@@ -315,7 +323,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const procedimentos = this.dataset.procedimentos;
             const dentista = this.dataset.dentista;
             const valor = this.dataset.valor;
-
+            const taxaCartao = this.dataset.taxaCartao;
+            const custoProtetico = this.dataset.custoProtetico;
+            const comissaoDentista = this.dataset.comissaoDentista;
+            const valorBruto = this.dataset.bruto;
+            
             // Monta o HTML do modal com formato de formulário (campos de leitura)
             const html = `
                 <div class="form-group">
@@ -333,6 +345,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="form-group">
                     <label>Dentista</label>
                     <input type="text" value="${dentista}" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Valor Bruto</label>
+                    <input type="text" value="${valorBruto}" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Taxa do Cartão</label>
+                    <input type="text" value="${taxaCartao}" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Custo do Protético</label>
+                    <input type="text" value="${custoProtetico}" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Comissão do Dentista</label>
+                    <input type="text" value="${comissaoDentista}" readonly>
                 </div>
                 <div class="form-group">
                     <label>Valor Líquido (Clínica)</label>
